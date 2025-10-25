@@ -2,21 +2,45 @@ package main
 
 import (
 	// "fmt"
+	"database/sql"
 	"log"
 	"net/http"
 	"os"
 
+	"github.com/cyxabima/rss-aggregator/internal/database"
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
+	_ "github.com/lib/pq"
 )
+
+type apiConfig struct {
+	DB *database.Queries
+}
 
 func main() {
 	godotenv.Load()
+
 	portString := os.Getenv("PORT")
 	if portString == "" {
 		log.Fatal("PORT is not Found in the environment")
 	}
+
+	dbURL := os.Getenv("DB_URL")
+	if dbURL == "" {
+		log.Fatal("DB URL is not Found in the environment")
+	}
+
+	conn, err := sql.Open("postgres", dbURL)
+	if err != nil {
+		log.Fatal("can't connect to database:", err)
+	}
+
+	queries := database.New(conn)
+
+	apiConf := apiConfig{
+		DB: queries,
+	} //TODO : we will define methods in this struct
 
 	router := chi.NewRouter()
 
