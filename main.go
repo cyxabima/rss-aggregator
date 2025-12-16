@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/cyxabima/rss-aggregator/internal/database"
 	"github.com/go-chi/chi"
@@ -42,11 +43,14 @@ func main() {
 		log.Fatal("can't connect to database:", err)
 	}
 
-	queries := database.New(conn)
+	db := database.New(conn)
 
 	apiConf := apiConfig{
-		DB: queries,
-	} //TODO : we will define methods in this struct
+		DB: db,
+	}
+
+	// * running a separate go routine which will run in background non blocking
+	go startScrapping(db, 10, time.Minute)
 
 	router := chi.NewRouter()
 
