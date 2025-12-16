@@ -11,7 +11,7 @@ import (
 	"github.com/go-chi/chi"
 	"github.com/go-chi/cors"
 	"github.com/joho/godotenv"
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // this nasty thing must be imported for sqlc
 )
 
 type apiConfig struct {
@@ -20,6 +20,12 @@ type apiConfig struct {
 
 func main() {
 	godotenv.Load()
+
+	// rssFeed, err := urlToFeed("https://podcastfeeds.nbcnews.com/HL4TzgYC")
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println(rssFeed)
 
 	portString := os.Getenv("PORT")
 	if portString == "" {
