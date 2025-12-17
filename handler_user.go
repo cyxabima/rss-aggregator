@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/cyxabima/rss-aggregator/internal/database"
@@ -41,4 +42,34 @@ func (apiCfg *apiConfig) handlerCreateUser(w http.ResponseWriter, r *http.Reques
 func (apiCfg *apiConfig) handlerGetUser(w http.ResponseWriter, r *http.Request, user database.User) {
 
 	respondWithJSON(w, 200, databaseUserToUser(user))
+}
+
+func (apiCfg *apiConfig) handlerGetPostForUser(w http.ResponseWriter, r *http.Request, user database.User) {
+	limit := r.URL.Query().Get("limit")
+	offset := r.URL.Query().Get("offset")
+	intLimit, err := strconv.Atoi(limit)
+	if err != nil {
+		respondWithError(w, 400, "Invalid limit")
+		return
+	}
+	intOffset, err := strconv.Atoi(offset)
+
+	if err != nil {
+		respondWithError(w, 400, "Invalid offset")
+		return
+	}
+
+	posts, err := apiCfg.DB.GetPostForUser(r.Context(),
+		database.GetPostForUserParams{
+			UserID: user.ID,
+			Limit:  int32(intLimit),
+			Offset: int32(intOffset),
+		})
+
+	if err != nil {
+		respondWithError(w, 400, err.Error())
+	}
+
+	respondWithJSON(w, 200, databasePostsToPosts(posts))
+
 }

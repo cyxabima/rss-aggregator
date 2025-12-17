@@ -79,6 +79,8 @@ func main() {
 	v1Router.Post("/feed_follows", apiConf.middlewareAuth(apiConf.handlerCreateFeedFollow))
 	v1Router.Delete("/feed_follows/{feedFollowID}", apiConf.middlewareAuth(apiConf.handlerDeleteFeedFollow))
 
+	v1Router.Get("/posts", apiConf.middlewareAuth(apiConf.handlerGetPostForUser))
+
 	svr := &http.Server{
 		Handler: router,
 		Addr:    ":" + portString,
